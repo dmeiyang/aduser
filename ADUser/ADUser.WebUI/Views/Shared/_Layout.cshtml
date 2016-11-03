@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cache-control" content="no-cache">
+    <title>@ViewBag.Title - 人生若只如初见</title>
+
+    <link href="/content/mgr/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+
+    @Styles.Render("~/content/manager/css")
+
+    <!-- 加载插件样式 -->
+    @RenderSection("styles", required: false)
+
+    @Styles.Render("~/content/manager/css/themes")
+</head>
+<body>
+    @Html.Action("PartialHeader", "Home")
+
+    <div id="wrapper">
+        <!-- 左侧菜单 start -->
+        <nav id="sidebar" role="navigation" class="navbar-default navbar-static-side">
+            <div class="sidebar-collapse menu-scroll">
+                <ul id="side-menu" class="nav">
+                    <li class="user-panel">
+                        <div class="thumb">
+                            <img src="~/content/mgr/images/gallery/data/head_default.jpg" class="img-circle" />
+                        </div>
+                        <div class="info">
+                            <p>@HGLAuthorize.Account.ToDescription(6)</p>
+                            <ul class="list-inline list-unstyled">
+                                <li><a href="/home/basicinfo" title="基本信息"><i class="fa fa-user"></i></a></li>
+                                <li><a href="javascript:void(0);" title="邮件通知"><i class="fa fa-envelope"></i></a></li>
+                                <li><a href="javascript:void(0);" class="js-password" title="修改密码"><i class="fa fa-cog"></i></a></li>
+                                <li><a href="javascript:void(0);" class="js-exit" title="用户退出"><i class="fa fa-sign-out"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="clearfix"></div>
+                    </li>
+                    <li class="amy-menu-default">
+                        <a href="/">
+                            <i class="fa fa-tachometer fa-fw">
+                                <div class="icon-bg bg-orange"></div>
+                            </i>
+                            <span class="menu-title">我的工作台</span>
+                        </a>
+                    </li>
+                    <li data-cookie="aduser">
+                        <a href="javascript:void(0);">
+                            <i class="fa fa-laptop fa-fw">
+                                <div class="icon-bg bg-pink"></div>
+                            </i>
+                            <span class="menu-title">域用户管理</span><span class="fa arrow"></span>
+                        </a>
+                        <ul class="nav nav-second-level">
+                            <li data-cookie="aduser-list" class="amy-menu"><a href="/user"><i class="fa fa-rocket"></i><span class="submenu-title">用户列表</span></a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <!-- 左侧菜单 end -->
+        <!-- 内容区域 start -->
+        <div id="page-wrapper">
+            @RenderBody()
+        </div>
+        <!-- 内容区域 end -->
+    </div>
+
+    @Html.Action("PartialFooter", "Home")
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

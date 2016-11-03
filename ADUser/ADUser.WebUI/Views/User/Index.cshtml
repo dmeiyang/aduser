@@ -1,0 +1,234 @@
+﻿@model IEnumerable<ADUser.WebUI.Service.Models.User>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- 面包屑 start -->
+<div id="title-breadcrumb-option-demo" class="page-title-breadcrumb">
+    <ol class="breadcrumb page-breadcrumb pull-left">
+        <li><i class="fa fa-home"></i>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/">工作台</a>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>&nbsp;&nbsp;</li>
+        <li><a href="javascript:void(0);">域用户管理</a>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>&nbsp;&nbsp;</li>
+        <li class="active">@ViewBag.Title</li>
+    </ol>
+    <div class="clearfix"></div>
+</div>
+<!-- 面包屑 end -->
+<!-- 右侧内容 start -->
+<div class="page-content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-yellow">
+                <div class="panel-body">
+                    <div class="box jplist">
+                        <div class="jplist-panel box panel-top">
+                            <div style="float: left;">
+                                <div class="text-filter-box">
+                                    <a href="javascript:void(0);" class="btn btn-green js-add"><i class="fa fa-plus"></i>&nbsp;添加域用户</a>
+                                    <a href="javascript:void(0);" class="btn btn-primary js-bulkDel"><i class="fa fa-minus"></i>&nbsp;删除域用户</a>
+                                </div>
+                            </div>
+                            <div style="float: right;">
+                                <form method="get" action="/user">
+                                    <div class="text-filter-box">
+                                        <div class="input-group">
+                                            <select name="ou" class="select2" style="width:100%" data-selected="@ViewBag.OU">
+                                                <option value="">请选择组织结构</option>
+                                                <option value="IT">技术部</option>
+                                                <option value="2">人事部</option>
+                                                <option value="3">销售部</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="text-filter-box">
+                                        <div class="input-group">
+                                            <input type="text" name="key" value="@ViewBag.Key" class="form-control" placeholder="账号/姓名">
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-blue" type="submit">搜索</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-yellow">
+                <div class="panel-heading">@ViewBag.Title</div>
+                <div class="panel-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th width="3%">
+                                    <input type="checkbox" class="checkall" />
+                                </th>
+                                <th>姓名</th>
+                                <th>账号</th>
+                                <th>部门</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var v in Model)
+                            {
+                                <tr data-id="@v.Account">
+
+                                    <td>
+                                        <input type="checkbox" />
+                                    </td>
+                                    <td>@v.Name</td>
+                                    <td>@v.Account</td>
+                                    <td>@v.OU</td>
+                                    <td>@(v.IsEnabled?"启用":"禁用")</td>
+                                    <td>@v.CreateTime.ToFormatDay()</td>
+                                    <td>
+                                        <a href="javascript:void(0);" class="btn btn-green btn-outlined btn-square js-setpassword">重置密码</a>
+                                        @if (v.IsEnabled)
+                                        {
+                                            <a href="javascript:void(0);" class="btn btn-red btn-outlined btn-square js-disabled">禁用</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript:void(0);" class="btn btn-green btn-outlined btn-square js-enable">启用</a>
+                                        }
+                                        <a href="javascript:void(0);" class="btn btn-red btn-outlined btn-square js-del">删除</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div id="echart" class="col-lg-12" style="height:400px;"></div>
+    </div>
+</div>
+<!-- 右侧内容 end -->
+
+@section styles{
+    <link type="text/css" rel="stylesheet" href="/content/mgr/vendors/jplist/html/css/jplist-custom.css">
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            $('.js-add').on('click', function () {
+                amy.modal('@Url.Action("Add", "User")', {}, function (data, res) {
+                    if (res.Flag) {
+                        amy.alert('新建域用户成功！！！', function () {
+                            location.reload();
+                        })
+                    }
+                    else {
+                        amy.alert(res.Content[0][1]);
+                    }
+                })
+            })
+
+            $('.js-setpassword').on('click', function () {
+                var id = $(this).parents('tr').attr('data-id');
+
+                amy.modal('@Url.Action("SetPassword", "User")', { account:id }, function (data, res) {
+                    if (res.Flag) {
+                        amy.alert('设置密码成功！！！', function () {
+                            location.reload();
+                        })
+                    }
+                    else {
+                        amy.alert(res.Content[0][1]);
+                    }
+                })
+            })
+
+            $('.js-del').on('click', function () {
+                var id = $(this).parents('tr').attr('data-id');
+
+                amy.confirm('确定要删除所选用户吗？', function () {
+                    $.post('@Url.Action("Delete", "User")', { accounts: id }, function (res) {
+                        if (res.Flag) {
+                            amy.alert('删除用户成功！！！', function () {
+                                location.reload();
+                            })
+                        }
+                        else {
+                            amy.alert(res.Content[0][1]);
+                        }
+
+                    }, 'json')
+                })
+            })
+
+            $('.js-bulkDel').on('click', function () {
+                var obj = $(this);
+
+                amy.confirm('确定要删除所选用户吗？', function () {
+                    var ids = [];
+
+                    $(".icheckbox_minimal-grey").each(function () {
+                        if ($(this).hasClass("checked")) {
+
+                            var id = $(this).parents('tr').attr('data-id');
+
+                            if (id) {
+                                ids.push(id);
+                            }
+                        }
+                    });
+
+                    $.post('@Url.Action("Delete", "User")', { accounts: ids.join(',') }, function (res) {
+                        if (res.Flag) {
+                            amy.alert('删除用户成功！！！', function () {
+                                location.reload();
+                            })
+                        }
+                        else {
+                            amy.alert(res.Content[0][1]);
+                        }
+
+                    }, 'json')
+                })
+            })
+
+            $('.js-enable').on('click', function () {
+                var id = $(this).parents('tr').attr('data-id');
+
+                amy.confirm('确定要启用所选用户吗？', function () {
+                    $.post('@Url.Action("SetEnable", "User")', { account: id }, function (res) {
+                        if (res.Flag) {
+                            amy.alert('启用用户成功！！！', function () {
+                                location.reload();
+                            })
+                        }
+                        else {
+                            amy.alert(res.Content[0][1]);
+                        }
+
+                    }, 'json')
+                })
+            })
+
+            $('.js-disabled').on('click', function () {
+                var id = $(this).parents('tr').attr('data-id');
+
+                amy.confirm('确定要禁用所选用户吗？', function () {
+                    $.post('@Url.Action("SetDisabled", "User")', { account: id }, function (res) {
+                        if (res.Flag) {
+                            amy.alert('禁用用户成功！！！', function () {
+                                location.reload();
+                            })
+                        }
+                        else {
+                            amy.alert(res.Content[0][1]);
+                        }
+
+                    }, 'json')
+                })
+            })
+        })
+    </script>
+}
+
